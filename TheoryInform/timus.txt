@@ -1,0 +1,193 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void PrintVector(vector<int> vector) 
+{
+	for (int i = 0; i<vector.size(); i++) {
+		cout << vector[i] << " ";
+	}
+	cout << endl;
+}
+
+void ClearZeros(vector<int> &vector)
+{
+	vector.erase(vector.end() - 1);
+}
+
+void CalculateModulo(vector<int> &dividend, vector<int> &divider, vector<int> &result, vector<int> &modulo)
+{
+	reverse(dividend.begin(), dividend.end());
+	reverse(divider.begin(), divider.end());
+	modulo = dividend;
+	
+	while (modulo.size() >= divider.size()) 
+	{
+		
+		int offset = modulo.size() - divider.size();
+		result.push_back(modulo.back());
+		if (modulo.back() != 0)
+			for (int i = offset++, j = 0; i < modulo.size(); i++, j++)
+				modulo[i] = (modulo[i] ^ divider[j]);
+		ClearZeros(modulo);
+	}
+	reverse(result.begin(), result.end());
+}
+
+vector<vector<int>> GetMatrix(vector<int> &g, int n)
+{
+	vector<vector<int>> result;
+	result.resize(n-g.size()+1);
+	for (int i = 0; i <= n - g.size(); i++)
+		result[i].resize(n);
+	for (int i = 0; i <= n - g.size(); i++)
+	{
+		for (int j = 0; j < i; j++)
+		{
+			result[i][j]=0;
+		}
+		for (int j = i; j < i+g.size(); j++)
+		{
+			result[i][j]=g[j - i];
+		}
+		for (int j = i + g.size(); j < n; j++)
+		{
+			result[i][j] = 0;
+		}
+	}
+	return result;
+
+}
+
+void printMatrix(vector<vector<int>> matrix)
+{
+	cout << endl;
+	for (int i = 0; i < matrix.size(); i++)
+	{
+		for (int j = 0; j < matrix[i].size(); j++)
+			cout << matrix[i][j] << " ";
+		cout << endl;
+	}
+
+}
+
+void coding(vector<vector<int>> matrix, int k)
+{
+	int count = pow(2, k);
+	vector<vector<int>> code;
+	code.resize(count);
+	for (int i = 0; i < count; i++)
+		code[i].resize(k);
+	for (int i = 0; i < count; i++)
+	{
+		int chair = i;
+		for (int j = 0; j < k; j++)
+		{
+			code[i][k - j - 1] = chair%2;
+			chair = chair / 2;
+			
+		}
+	}
+	int row = matrix.size();
+	int coll = matrix[0].size();
+
+	vector<vector<int>> codeW;
+	codeW.resize(count);
+	for (int i = 0; i < count; i++)
+		codeW[i].resize(coll);
+
+	for (int i = 0; i < count; i++)
+	{
+		for (int j = 0; j < coll; j++)
+			for (int l = 0; l < row; l++)
+				codeW[i][j] += code[i][l] * matrix[l][j];
+
+	}
+	for (int i = 0; i < count; i++)
+		for (int j = 0; j < coll; j++)
+			codeW[i][j] = codeW[i][j] % 2;
+	
+	vector<int> sum;
+	sum.resize(count);
+	int min = coll;
+	for (int i = 1; i < count; i++)
+	{
+		for (int j = 0; j < coll; j++)
+			sum[i] += codeW[i][j];
+		if (sum[i] < min)
+			min = sum[i];
+		cout << sum[i]<<endl;
+	}
+	
+	cout << "min: " << min << endl;
+
+	
+	printMatrix(codeW);
+
+}
+
+vector<int> getSimbolCode(char a)
+{
+	vector<int> result;
+	result.resize(8);
+	int chair = a;
+	for (int i = 0; i < 8; i++)
+	{
+		result[7-i] = chair % 2;
+		chair = chair / 2;
+	}
+	return result;
+
+}
+
+
+
+
+int main(void) 
+{
+
+	//vector<int> dividend = { 1, 0, 0, 0, 0, 0, 0, 1 };
+	vector<int> dividend;
+	dividend.push_back(1);
+	dividend.push_back(0);
+	dividend.push_back(0);
+	dividend.push_back(0);
+	dividend.push_back(0);
+	dividend.push_back(0);
+	dividend.push_back(0);
+	dividend.push_back(1);
+	//vector<int> divider = { 1, 1, 0, 1 };
+	vector<int> divider;
+	divider.push_back(1);
+	divider.push_back(0);divider.push_back(1);
+	
+	divider.push_back(1);
+	vector<int> modulo, result;
+
+	//Делимое
+	cout << "Dividend:" << endl;
+	//Делитель
+	PrintVector(dividend);
+	cout << "Divider:" << endl;
+	PrintVector(divider);
+
+	CalculateModulo(dividend, divider, result, modulo);
+
+	vector <vector<int>> matrix = GetMatrix(divider, 7);
+	coding(matrix, 4);
+	printMatrix(matrix);
+
+	vector<int> ch = getSimbolCode('a');
+	int a = (int)'a';
+	cout << "a: "<< a << " ";
+	for (int i = 0; i < ch.size(); i++)
+		cout << ch[i] << " ";
+
+	cout <<endl<< "Result:" << endl;
+	PrintVector(result);
+	cout << "Modulo:" << endl;
+	PrintVector(modulo);
+	system("pause");
+	return 0;
+}
